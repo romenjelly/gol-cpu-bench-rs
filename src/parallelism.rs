@@ -179,7 +179,7 @@ pub trait Jobber<T, TConf>
         }
     }
 
-    fn process_job(buffer: &Buffer<T>, index: usize, conf: &TConf) -> T; 
+    fn process_job(buffer: &Buffer<T>, index: usize, conf: &TConf) -> T;
 }
 
 pub trait Executor<T, TConf>

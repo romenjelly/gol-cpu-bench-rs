@@ -38,7 +38,7 @@ impl Default for Config {
             parallel_execution: true,
             thread_count: num_cpus::get(),
             work_slice_len: 128 * 128,
-             
+
             iterations: 1024,
             width: 3840,
             height: 2160,
@@ -139,7 +139,7 @@ fn run() -> Result<(), String> {
         config.height,
         if config.parallel_execution { config.thread_count } else { 1 },
     );
-    
+
     let in_buf = Buffer::from_value_2d((config.width, config.height), GolCell::Dead);
     let exec: ExecutorSingleThread<_, _, CheckerboardJobber> = ExecutorSingleThread::new();
     let mut init_buf = Buffer::from_value_2d((config.width, config.height), GolCell::Dead);

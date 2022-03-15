@@ -88,7 +88,7 @@ impl Jobber<GolCell, ()> for GameOfLifeJobber {
         let cell_pos = buffer.index_to_pos_2d(index);
         let cell = buffer.data[index];
         let neighbor_count = GameOfLifeJobber::get_neighbor_count(cell_pos, buffer);
-        
+
         /*
         // More verbose/explicit, but slightly slower for some reason
         return match cell {
