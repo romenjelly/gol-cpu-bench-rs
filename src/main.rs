@@ -72,7 +72,7 @@ It will run for the specified iteration count, simulating Game of Life generatio
 You can configure the run parameters using the --generate-config and --use-config flags.
 
 flags:
-    (-h | --generate-config) <filename?>
+    (-g | --generate-config) <filename?>
         to generate a config file used for benchmarking
         each parameter is what the app would've used on this machine when launching without flags
         the filename is optional, the tool will generate bench_conf.toml by default
