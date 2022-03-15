@@ -49,4 +49,6 @@ This mode outputs the Game of Life generations to the terminal instead of using 
 The optional target framerate parameter is set to 8 by default.
 It determines how fast the generations should be shown (although the frametime delay will have the terminal render overhead added to it, making the simulation slower than the target framerate).
 
+The visualization mode does not take into account the configuration file, and will run for `usize::MAX` iterations, usually stopped by a `SIGINT` from the user.
+
 The shorthand for `--visualize` is `-v`.
