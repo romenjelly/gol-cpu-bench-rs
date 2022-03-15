@@ -35,3 +35,12 @@ The file will by default be named `benc_config.toml`, but you can specify the na
 
 To have the program use said configuration file, you need to run it with the `--use-config <filename?>` flag.  
 The program will by default search for the `bench_config.toml` file, but you can specify your own (again, omitting the `.toml` extension).
+
+## Visualization Mode
+
+This tool comes with a visualization mode that can be accessed by passing the `--visualize <target_framerate?>` or `--visualise <target_framerate?>` flag.
+
+This mode outputs the Game of Life generations to the terminal instead of using it as a benchmark.
+
+The optional target framerate parameter is set to 8 by default.
+It determines how fast the generations should be shown (although the frametime delay will have the terminal render overhead added to it, making the simulation slower than the target framerate).
