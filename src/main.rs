@@ -80,6 +80,9 @@ flags:
         to use a config file instead of default parameters
         any parameter be omitted if the default is preferred
         the filename is optional, the tool will search for bench_conf.toml by default
+    --visualize <target_framerate?>
+        to run the tool in visualization mode
+        in which it'll display a Game of Life simulation sized to the terminal window
 ";
 
 fn run() -> Result<(), String> {
