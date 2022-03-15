@@ -12,6 +12,7 @@ pub struct Buffer<T> {
     pub dims: (usize, usize, usize),
 }
 
+#[allow(dead_code)]
 impl<T> Buffer<T>
     where T: Copy
 {
