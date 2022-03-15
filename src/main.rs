@@ -72,15 +72,15 @@ It will run for the specified iteration count, simulating Game of Life generatio
 You can configure the run parameters using the --generate-config and --use-config flags.
 
 flags:
-    --generate-config <filename?>
+    (-h | --generate-config) <filename?>
         to generate a config file used for benchmarking
         each parameter is what the app would've used on this machine when launching without flags
         the filename is optional, the tool will generate bench_conf.toml by default
-    --use-config <filename?>
+    (-c | --use-config) <filename?>
         to use a config file instead of default parameters
         any parameter be omitted if the default is preferred
         the filename is optional, the tool will search for bench_conf.toml by default
-    --visualize <target_framerate?>
+    (-v | --visualize | --visualise) <target_framerate?>
         to run the tool in visualization mode
         in which it'll display a Game of Life simulation sized to the terminal window
 ";
@@ -94,25 +94,25 @@ fn run() -> Result<(), String> {
     let mut args_iter = std::env::args().skip(1);
     if let Some(arg) = args_iter.next() {
         match arg.as_str() {
-            "--help" => {
+            "-h" | "--help" => {
                 println!("{}", HELP_STRING.trim());
                 return Ok(());
             },
-            "--generate-config" => {
+            "-g" | "--generate-config" => {
                 let file_name = format_file_name_to_toml(&args_iter.next().unwrap_or(String::from(DEFAULT_CONF_FILE_NAME)));
                 let conf_serialized = toml::to_string(&config).unwrap();
                 std::fs::write(&file_name, conf_serialized).map_err(|_| "Unable to write to file, exiting.")?;
                 println!("Generated config file '{}', exiting.", file_name);
                 return Ok(());
             },
-            "--use-config" => {
+            "-c" | "--use-config" => {
                 let file_name = format_file_name_to_toml(&args_iter.next().unwrap_or(String::from(DEFAULT_CONF_FILE_NAME)));
                 let conf_seriazlied = std::fs::read_to_string(&file_name).map_err(|_| format!("Unable to find or read file {}, exiting.", file_name))?;
                 let conf_deserialized: ConfigToml = toml::from_str(&conf_seriazlied).map_err(|_| "Unable to parse file's values, generate one to see available fields.")?;
                 config = conf_deserialized.into();
                 println!("Using config file '{}'", file_name);
             },
-            "--visualize" | "--visualise" => {
+            "-v" | "--visualize" | "--visualise" => {
                 vis_mode = true;
                 if let Some(framerate_string) = args_iter.next() {
                     let framerate = framerate_string.parse::<usize>().map_err(|_| "Unable to parse target framerate")?;

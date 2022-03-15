@@ -26,15 +26,19 @@ The debug version of this tool is extremely slow, so run it using `cargo run --r
 
 To add flags, add a `--` after `--release`, example: `cargo run --release -- --help`.
 
-More details about flags can be found using the `--help` flag.
+More details about flags can be found using the `--help` or `-h` flag.
 
 ## Configuration File
 
 If you want to configure your bencmark run, launch the program with `--generate-config <filename?>`, which will generate a configuration file.  
 The file will by default be named `benc_config.toml`, but you can specify the name yourself (omitting the `.toml` extension).
 
+The shorthand for `--generate-config` is `-g`.
+
 To have the program use said configuration file, you need to run it with the `--use-config <filename?>` flag.  
 The program will by default search for the `bench_config.toml` file, but you can specify your own (again, omitting the `.toml` extension).
+
+The shorthand for `--use-config` is `-c`.
 
 ## Visualization Mode
 
@@ -44,3 +48,5 @@ This mode outputs the Game of Life generations to the terminal instead of using 
 
 The optional target framerate parameter is set to 8 by default.
 It determines how fast the generations should be shown (although the frametime delay will have the terminal render overhead added to it, making the simulation slower than the target framerate).
+
+The shorthand for `--visualize` is `-v`.
