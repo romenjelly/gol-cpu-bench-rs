@@ -6,6 +6,7 @@ use crate::jobbers::checkerboard::*;
 use crate::jobbers::gol::*;
 
 use serde::{Serialize, Deserialize};
+use terminal_size::{Width, Height, terminal_size};
 
 
 #[derive(Deserialize)]
@@ -84,6 +85,8 @@ flags:
 fn run() -> Result<(), String> {
     const DEFAULT_CONF_FILE_NAME: &'static str = "bench_conf";
     let mut config = Config::default();
+    let mut vis_mode = false;
+    let mut target_framerate: usize = 8;
 
     let mut args_iter = std::env::args().skip(1);
     if let Some(arg) = args_iter.next() {
@@ -106,11 +109,27 @@ fn run() -> Result<(), String> {
                 config = conf_deserialized.into();
                 println!("Using config file '{}'", file_name);
             },
+            "--visualize" | "--visualise" => {
+                vis_mode = true;
+                if let Some(framerate_string) = args_iter.next() {
+                    let framerate = framerate_string.parse::<usize>().map_err(|_| "Unable to parse target framerate")?;
+                    target_framerate = framerate;
+                }
+            },
             _ => {
                 println!("Unknown argument '{}', run with --help for more info.", arg);
                 return Ok(());
             }
         }
+    }
+
+    if vis_mode == true {
+        let (Width(width), Height(height)) = terminal_size().ok_or("Unable to get terminal window size.")?;
+        // Calculation to guarantee an empty column for a \n considering some terminals automatically wrap
+        let divided_width = width as usize / GOL_VIS_CHAR_WIDTH;
+        config.width = divided_width - if width % 2 == 0 { 1 } else { 0 };
+        config.height = height as usize;
+        config.iterations = usize::MAX;
     }
 
     println!(
@@ -126,10 +145,11 @@ fn run() -> Result<(), String> {
     let mut init_buf = Buffer::from_value_2d((config.width, config.height), GolCell::Dead);
     exec.compute(in_buf, &mut init_buf.data, CheckerboardConf { color_a: GolCell::Dead, color_b: GolCell::Alive, width: config.width });
 
-    let exec_gol: Box<dyn Executor<GolCell, ()>> = if config.parallel_execution == true {
-        Box::new(ExecutorParallel::new::<GameOfLifeJobber>(config.thread_count, config.work_slice_len))
-    } else {
-        Box::new(ExecutorSingleThread::<GolCell, (), GameOfLifeJobber>::new())
+    // Dynamic dispatch adds little to no overhead in this instance since compute_iterations() is called only once
+    let exec_gol: Box<dyn Executor<GolCell, ()>> = match (vis_mode, config.parallel_execution) {
+        (true, _) => Box::new(ExecutorGolVis::new(target_framerate)),
+        (false, true) => Box::new(ExecutorParallel::new::<GameOfLifeJobber>(config.thread_count, config.work_slice_len)),
+        (false, false) => Box::new(ExecutorSingleThread::<GolCell, (), GameOfLifeJobber>::new()),
     };
 
     exec_gol.compute_iterations(config.iterations, init_buf, ());

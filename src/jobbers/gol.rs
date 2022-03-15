@@ -1,5 +1,6 @@
 use std::fmt::Debug;
-use crate::parallelism::{Jobber, Buffer};
+use crate::parallelism::{Jobber, Buffer, Executor};
+use std::io::{Write, stdout};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum GolCell {
@@ -96,5 +97,47 @@ impl Jobber<GolCell, ()> for GameOfLifeJobber {
         }.into();
         */
         return ((neighbor_count == 3) || (neighbor_count == 2 && cell.is_alive())).into();
+    }
+}
+
+pub const GOL_VIS_CHAR_WIDTH: usize = 2_usize;
+
+pub struct ExecutorGolVis {
+    frame_interval: f32,
+}
+
+impl ExecutorGolVis {
+    pub fn new(target_framerate: usize) -> Self {
+        Self {
+            frame_interval: 1_f32 / target_framerate as f32,
+        }
+    }
+}
+
+impl Executor<GolCell, ()> for ExecutorGolVis
+{
+    fn compute(&self, in_buffer: Buffer<GolCell>, out_buffer: &mut [GolCell], conf: ()) -> Buffer<GolCell> {
+        // Very bad way to do this since it adds the processing and printing overhead to the loop
+        // but it avoids interior mutability of the Executor; but maybe it should be &mut anyway
+        std::thread::sleep(std::time::Duration::from_secs_f32(self.frame_interval));
+
+        for index in 0..(in_buffer.len()) {
+            out_buffer[index] = GameOfLifeJobber::process_job(&in_buffer, index, &conf);
+        }
+
+        let mut stdout = stdout();
+        let output: String = out_buffer
+            .chunks_exact(in_buffer.dims.0)
+            .map(|cells| cells
+                .iter()
+                .map(|cell| std::iter::repeat(Into::<char>::into(*cell)).take(GOL_VIS_CHAR_WIDTH))
+                .flatten()
+                .chain(['\n'])
+            )
+            .flatten()
+            .collect()
+            ;
+        stdout.write_all(output.trim().as_bytes()).expect("Error writing to console");
+        return in_buffer;
     }
 }
